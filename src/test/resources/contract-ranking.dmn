@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" xmlns:biodi="http://bpmn.io/schema/dmn/biodi/1.0" id="contractRating" name="Contract Rating" namespace="http://camunda.org/schema/1.0/dmn">
+  
+  <businessKnowledgeModel id="contractScore" name="Score">
+    <extensionElements>
+      <biodi:bounds x="218" y="343" width="135" height="46" />
+      <biodi:edge source="BusinessKnowledgeModel_0xcnot0">
+        <biodi:waypoints x="166" y="459" />
+        <biodi:waypoints x="242" y="389" />
+      </biodi:edge>
+      <biodi:edge source="BusinessKnowledgeModel_0lii9g1">
+        <biodi:waypoints x="292" y="460" />
+        <biodi:waypoints x="292" y="389" />
+      </biodi:edge>
+      <biodi:edge source="BusinessKnowledgeModel_0c139lw">
+        <biodi:waypoints x="425" y="460" />
+        <biodi:waypoints x="353" y="384" />
+      </biodi:edge>
+    </extensionElements>
+    <encapsulatedLogic>
+      <formalParameter name="contract" />
+      <context>
+        <contextEntry>
+            <variable name="name"/>
+            <literalExpression>
+                <text>contract.name</text>
+            </literalExpression>
+        </contextEntry>
+        <contextEntry>
+            <variable name="networkQuality"/>
+            <invocation>
+	            <literalExpression>
+	                <text>Network_Quality_Score</text>
+	            </literalExpression>
+	            <binding>
+	                <parameter name="contract"/>
+	                <literalExpression>
+	                    <text>contract</text>
+	                </literalExpression>
+	            </binding>
+	        </invocation>
+        </contextEntry>
+        <contextEntry>
+            <variable name="mobileDataPlan"/>
+            <invocation>
+	            <literalExpression>
+	                <text>Mobile_Data_Plan_Score</text>
+	            </literalExpression>
+	            <binding>
+	                <parameter name="contract"/>
+	                <literalExpression>
+	                    <text>contract</text>
+	                </literalExpression>
+	            </binding>
+	        </invocation>
+        </contextEntry>
+        <contextEntry>
+            <variable name="cost"/>
+            <invocation>
+	            <literalExpression>
+	                <text>Cost_Score</text>
+	            </literalExpression>
+	            <binding>
+	                <parameter name="contract"/>
+	                <literalExpression>
+	                    <text>contract</text>
+	                </literalExpression>
+	            </binding>
+	        </invocation>
+        </contextEntry>
+        <contextEntry>
+            <variable name="totalScore"/>
+            <literalExpression>
+                <text><![CDATA[sum(networkQuality * 1, mobileDataPlan * 3, cost * 2)]]></text>
+            </literalExpression>
+        </contextEntry>
+    	</context>
+    </encapsulatedLogic>
+    <knowledgeRequirement>
+      <requiredKnowledge href="#networkQualityScore" />
+    </knowledgeRequirement>
+    <knowledgeRequirement>
+      <requiredKnowledge href="#mobileDataPlanScore" />
+    </knowledgeRequirement>
+    <knowledgeRequirement>
+      <requiredKnowledge href="#costScore" />
+    </knowledgeRequirement>    
+  </businessKnowledgeModel>
+  
+  <businessKnowledgeModel id="networkQualityScore" name="Network_Quality_Score">
+    <extensionElements>
+      <biodi:bounds x="56" y="459" width="135" height="46" />
+    </extensionElements>
+    <encapsulatedLogic>
+      <formalParameter name="contract" />
+      <decisionTable id="decisionTable_1">
+	      <input id="input_1" label="Network">
+	        <inputExpression id="inputExpression_1" typeRef="string">
+	          <text>contract.network</text>
+	        </inputExpression>
+	      </input>
+	      <output id="output_1" label="Score" name="score" typeRef="integer" />
+	      <rule id="DecisionRule_0w72das">
+	        <inputEntry id="UnaryTests_146nixk">
+	          <text>"Telekom"</text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_1h57k1u">
+	          <text>10</text>
+	        </outputEntry>
+	      </rule>
+	      <rule id="DecisionRule_16pocvb">
+	        <inputEntry id="UnaryTests_0jnms35">
+	          <text>"Vodafone"</text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_0pgo1yi">
+	          <text>9</text>
+	        </outputEntry>
+	      </rule>
+	      <rule id="DecisionRule_0y8w9rr">
+	        <inputEntry id="UnaryTests_020pjbu">
+	          <text>"O2"</text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_1tph8ze">
+	          <text>6</text>
+	        </outputEntry>
+	      </rule>
+	      <rule id="DecisionRule_13emgs3">
+	        <inputEntry id="UnaryTests_0lbhh3i">
+	          <text>"E Plus"</text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_1kqflu6">
+	          <text>6</text>
+	        </outputEntry>
+	      </rule>
+	    </decisionTable>
+    </encapsulatedLogic>  
+  </businessKnowledgeModel>
+  
+  <businessKnowledgeModel id="mobileDataPlanScore" name="Mobile_Data_Plan_Score">
+    <extensionElements>
+      <biodi:bounds x="222" y="460" width="135" height="46" />
+    </extensionElements>
+    <encapsulatedLogic>
+      <formalParameter name="contract" />
+      <decisionTable id="DecisionTable_1aqbv0v" hitPolicy="COLLECT" aggregation="SUM">
+	      <input id="InputClause_192n6hb" label="Network Speed in MBit/s">
+	        <inputExpression id="LiteralExpression_1t6qbin" typeRef="double">
+	          <text>contract.networkSpeed</text>
+	        </inputExpression>
+	      </input>
+	      <input id="InputClause_154dcbg" label="Included Data Volume in GB">
+	        <inputExpression id="LiteralExpression_1duxz36" typeRef="double">
+	          <text>contract.includedDataVolume</text>
+	        </inputExpression>
+	      </input>
+	      <output id="OutputClause_13nx1z9" label="Score" name="score" typeRef="integer" />
+	      <rule id="DecisionRule_1d8twtg">
+	        <inputEntry id="UnaryTests_07s0th0">
+	          <text>&gt;= 300</text>
+	        </inputEntry>
+	        <inputEntry id="UnaryTests_0j9220r">
+	          <text></text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_1nqa7lp">
+	          <text>5</text>
+	        </outputEntry>
+	      </rule>
+	      <rule id="DecisionRule_0avgf6o">
+	        <inputEntry id="UnaryTests_0mnmagq">
+	          <text>[100..300)</text>
+	        </inputEntry>
+	        <inputEntry id="UnaryTests_1kqawmu">
+	          <text></text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_1odzqjd">
+	          <text>4</text>
+	        </outputEntry>
+	      </rule>
+	      <rule id="DecisionRule_05z46yz">
+	        <inputEntry id="UnaryTests_14o193l">
+	          <text>[50..100)</text>
+	        </inputEntry>
+	        <inputEntry id="UnaryTests_172dqr0">
+	          <text></text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_1g5zqdg">
+	          <text>2</text>
+	        </outputEntry>
+	      </rule>
+	      <rule id="DecisionRule_03lq8n5">
+	        <inputEntry id="UnaryTests_1vy326o">
+	          <text>&lt; 50</text>
+	        </inputEntry>
+	        <inputEntry id="UnaryTests_0xet8d3">
+	          <text></text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_0rr1o03">
+	          <text>1</text>
+	        </outputEntry>
+	      </rule>
+	      <rule id="DecisionRule_0i09mro">
+	        <inputEntry id="UnaryTests_0i38g30">
+	          <text></text>
+	        </inputEntry>
+	        <inputEntry id="UnaryTests_17hsfho">
+	          <text>&gt;= 10</text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_17nbzzg">
+	          <text>5</text>
+	        </outputEntry>
+	      </rule>
+	      <rule id="DecisionRule_1c704or">
+	        <inputEntry id="UnaryTests_1lp7erv">
+	          <text></text>
+	        </inputEntry>
+	        <inputEntry id="UnaryTests_1ro3u8o">
+	          <text>[5..10)</text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_14ssbmt">
+	          <text>4</text>
+	        </outputEntry>
+	      </rule>
+	      <rule id="DecisionRule_047k9hv">
+	        <inputEntry id="UnaryTests_08kga41">
+	          <text></text>
+	        </inputEntry>
+	        <inputEntry id="UnaryTests_1hhyw0x">
+	          <text>[2..5)</text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_08eu24e">
+	          <text>1</text>
+	        </outputEntry>
+	      </rule>
+	    </decisionTable>
+    </encapsulatedLogic>
+  </businessKnowledgeModel>
+  
+  <businessKnowledgeModel id="costScore" name="Cost_Score">
+    <extensionElements>
+      <biodi:bounds x="385" y="460" width="135" height="46" />
+    </extensionElements>
+    <encapsulatedLogic>
+      <formalParameter name="contract" />
+      <decisionTable id="DecisionTable_11ieb58" hitPolicy="FIRST">
+	      <input id="InputClause_1xx5y22" label="Monthly Cost">
+	        <inputExpression id="LiteralExpression_16aakkh" typeRef="double">
+	          <text>contract.monthlyCost</text>
+	        </inputExpression>
+	      </input>
+	      <output id="OutputClause_0rlw5bk" label="Score" name="score" typeRef="integer" />
+	      <rule id="DecisionRule_1v8zh84">
+	        <inputEntry id="UnaryTests_1pkhnx2">
+	          <text>&lt; 5</text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_11v3h51">
+	          <text>10</text>
+	        </outputEntry>
+	      </rule>
+	      <rule id="DecisionRule_0zbjzx6">
+	        <inputEntry id="UnaryTests_1c8ewdf">
+	          <text>&lt; 10</text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_06n7ukl">
+	          <text>9</text>
+	        </outputEntry>
+	      </rule>
+	      <rule id="DecisionRule_0oxwr52">
+	        <inputEntry id="UnaryTests_10e0yuy">
+	          <text>&lt; 15</text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_1k31hsk">
+	          <text>6</text>
+	        </outputEntry>
+	      </rule>
+	      <rule id="DecisionRule_0cec4mx">
+	        <inputEntry id="UnaryTests_1ea1zss">
+	          <text>&lt; 20</text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_1t2miv7">
+	          <text>3</text>
+	        </outputEntry>
+	      </rule>
+	      <rule id="DecisionRule_0doq6md">
+	        <inputEntry id="UnaryTests_0ts9rbp">
+	          <text>&gt;= 20</text>
+	        </inputEntry>
+	        <outputEntry id="LiteralExpression_1w75anp">
+	          <text>1</text>
+	        </outputEntry>
+	      </rule>
+	    </decisionTable>
+    </encapsulatedLogic>
+  </businessKnowledgeModel>
+  
+  <decision id="contractRanking" name="Ranking">
+    <extensionElements>
+      <biodi:bounds x="201" y="202" width="180" height="80" />
+      <biodi:edge source="BusinessKnowledgeModel_07ba6co">
+        <biodi:waypoints x="285" y="343" />
+        <biodi:waypoints x="285" y="282" />
+      </biodi:edge>
+    </extensionElements>
+    <knowledgeRequirement>
+      <requiredKnowledge href="#contractScore" />
+    </knowledgeRequirement>
+    <context>
+        <contextEntry>
+            <variable name="scoredContracts"/>
+            <literalExpression>
+                <text><![CDATA[for c in contracts return Score(c)]]></text>
+            </literalExpression>
+        </contextEntry>
+        <contextEntry>
+            <literalExpression>
+                <text><![CDATA[sort(scoredContracts, function(c1, c2) c1.totalScore > c2.totalScore)]]></text>
+            </literalExpression>
+        </contextEntry>
+    	</context>
+  </decision>
+</definitions>

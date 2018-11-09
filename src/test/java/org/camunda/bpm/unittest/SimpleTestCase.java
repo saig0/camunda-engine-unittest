@@ -12,12 +12,13 @@
  */
 package org.camunda.bpm.unittest;
 
-import org.camunda.bpm.engine.runtime.ProcessInstance;
+import java.util.Arrays;
+import java.util.List;
+import org.camunda.bpm.dmn.engine.DmnDecisionResult;
+import org.camunda.bpm.engine.DecisionService;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
-
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.*;
-
+import org.camunda.bpm.engine.variable.Variables;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -27,25 +28,70 @@ import org.junit.Test;
  */
 public class SimpleTestCase {
 
-  @Rule
-  public ProcessEngineRule rule = new ProcessEngineRule();
+  @Rule public ProcessEngineRule rule = new ProcessEngineRule();
 
   @Test
-  @Deployment(resources = {"testProcess.bpmn"})
-  public void shouldExecuteProcess() {
-    // Given we create a new process instance
-    ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("testProcess");
-    // Then it should be active
-    assertThat(processInstance).isActive();
-    // And it should be the only instance
-    assertThat(processInstanceQuery().count()).isEqualTo(1);
-    // And there should exist just a single task within that process instance
-    assertThat(task(processInstance)).isNotNull();
+  @Deployment(resources = {"contract-ranking.dmn"})
+  public void shouldEvaluateContractRankingDecision() {
 
-    // When we complete that task
-    complete(task(processInstance));
-    // Then the process instance should be ended
-    assertThat(processInstance).isEnded();
+    final DecisionService decisionService = rule.getDecisionService();
+
+    final List<Contract> contracts =
+        Arrays.asList(
+            new Contract("contract-1", "O2", 50.0, 3, 7.99),
+            new Contract("contract-2", "Vodafone", 42.2, 2, 7.99),
+            new Contract("contract-3", "O2", 21.6, 2, 6.99),
+            new Contract("contract-4", "Vodafone", 500.0, 2, 10.85),
+            new Contract("contract-5", "Telekom", 300.0, 2, 16.24));
+
+    final DmnDecisionResult result =
+        decisionService
+            .evaluateDecisionByKey("contractRanking")
+            .variables(Variables.createVariables().putValue("contracts", contracts))
+            .evaluate();
+
+    System.out.println(result.getResultList());
   }
 
+  public class Contract {
+
+    private String name;
+    private String network;
+    private double networkSpeed;
+    private double includedDataVolume;
+    private double monthlyCost;
+
+    public Contract(
+        String name,
+        String network,
+        double networkSpeed,
+        double includedDataVolume,
+        double monthlyCost) {
+      this.name = name;
+      this.network = network;
+      this.networkSpeed = networkSpeed;
+      this.includedDataVolume = includedDataVolume;
+      this.monthlyCost = monthlyCost;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public String getNetwork() {
+      return network;
+    }
+
+    public double getNetworkSpeed() {
+      return networkSpeed;
+    }
+
+    public double getIncludedDataVolume() {
+      return includedDataVolume;
+    }
+
+    public double getMonthlyCost() {
+      return monthlyCost;
+    }
+  }
 }
