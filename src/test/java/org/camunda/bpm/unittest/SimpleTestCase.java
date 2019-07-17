@@ -12,6 +12,7 @@
  */
 package org.camunda.bpm.unittest;
 
+import org.camunda.bpm.dmn.engine.DmnDecisionTableResult;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
@@ -46,6 +47,15 @@ public class SimpleTestCase {
     complete(task(processInstance));
     // Then the process instance should be ended
     assertThat(processInstance).isEnded();
+  }
+
+  @Test
+  @Deployment(resources = {"decision-literal-expression-append.dmn"})
+  public void testFeelExpression() {
+
+    DmnDecisionTableResult result = rule.getDecisionService().evaluateDecisionTableByKey("decision-append").evaluate();
+
+    System.out.println("> " + result.getSingleEntry());
   }
 
 }

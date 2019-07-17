@@ -38,6 +38,12 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.camunda.bpm.extension.feel.scala</groupId>
+      <artifactId>feel-engine-plugin</artifactId>
+      <version>1.8.0</version>
+    </dependency>
+
     <!-- OPTIONAL: spin process engine plugin -->
     <dependency>
       <groupId>org.camunda.bpm</groupId>

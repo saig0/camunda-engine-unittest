@@ -34,6 +34,7 @@
       <list>
         <ref bean="connectProcessEnginePlugin" />
         <ref bean="spinProcessEnginePlugin" />
+        <bean class="org.camunda.feel.CamundaFeelEnginePlugin" />
       </list>
     </property>
 
